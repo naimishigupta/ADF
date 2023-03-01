@@ -1,0 +1,105 @@
+{
+	"name": "df_error_handling",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sales_csv_error",
+						"type": "DatasetReference"
+					},
+					"name": "csv"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_error",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_sql_good",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "errorRows"
+				},
+				{
+					"name": "mapping"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          OrderDate as string,",
+				"          Product as string,",
+				"          Quantity as string,",
+				"          CustomerName as string,",
+				"          Country as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> csv",
+				"csv split(isNull(toDate(OrderDate,'mm/dd/yyyy')),",
+				"     disjoint: false) ~> errorRows@(errorRows, goodrows)",
+				"errorRows@goodrows derive(OrderDate = toDate(OrderDate,'mm/dd/yyyy'),",
+				"          Quantity = toInteger(Quantity)) ~> mapping",
+				"errorRows@errorRows sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          OrderDate as string,",
+				"          Product as string,",
+				"          Quantity as string,",
+				"          CustomerName as string,",
+				"          Country as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          OrderDate,",
+				"          Product,",
+				"          Quantity,",
+				"          CustomerName,",
+				"          Country",
+				"     )) ~> sink1",
+				"mapping sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          OrderDate as date,",
+				"          Product as string,",
+				"          Quantity as integer,",
+				"          CustomerName as string,",
+				"          Country as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          OrderDate,",
+				"          Product,",
+				"          Quantity,",
+				"          CustomerName,",
+				"          Country",
+				"     )) ~> sink2"
+			]
+		}
+	}
+}

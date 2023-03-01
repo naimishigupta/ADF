@@ -1,0 +1,39 @@
+{
+	"name": "ds_sql_good",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "OrderDate",
+				"type": "date"
+			},
+			{
+				"name": "Product",
+				"type": "varchar"
+			},
+			{
+				"name": "Quantity",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CustomerName",
+				"type": "varchar"
+			},
+			{
+				"name": "Country",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "tbl_sales"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

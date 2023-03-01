@@ -1,0 +1,92 @@
+{
+	"name": "df_duplicate",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_source_duplicate",
+						"type": "DatasetReference"
+					},
+					"name": "source"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_sink_duplicatee",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_sink_duplicatee",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "duplicate"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id as integer,",
+				"          SalePersonFName as string,",
+				"          SalePersonLName as string,",
+				"          ProductName as string,",
+				"          ItemsSold as integer,",
+				"          SoldPrice as integer,",
+				"          SoldDate as date 'MM/dd/yyyy',",
+				"          City as string,",
+				"          State as string,",
+				"          Country as string,",
+				"          Region as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source",
+				"source aggregate(groupBy(SalePersonFName,",
+				"          SalePersonLName),",
+				"     count = count()) ~> aggregate1",
+				"aggregate1 split(count>1,",
+				"     disjoint: false) ~> duplicate@(duplicate, distinct)",
+				"duplicate@duplicate sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['duplicate'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          SalePersonFName,",
+				"          SalePersonLName,",
+				"          count",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> sink1",
+				"duplicate@distinct sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['unique'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          SalePersonFName,",
+				"          SalePersonLName,",
+				"          count",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> sink2"
+			]
+		}
+	}
+}

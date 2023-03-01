@@ -1,0 +1,9 @@
+{
+	"name": "instancenaimishi",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "c575a836-8944-43fd-a335-188d3adf2ec3",
+		"tenantId": "ab52d4e5-9cc7-437a-bdda-f4239e145187"
+	}
+}

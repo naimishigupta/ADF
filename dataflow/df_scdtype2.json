@@ -1,0 +1,154 @@
+{
+	"name": "df_scdtype2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_source_csv2",
+						"type": "DatasetReference"
+					},
+					"name": "csv"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_sinksql_type2",
+						"type": "DatasetReference"
+					},
+					"name": "sql"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_sinksql_type2",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_sinksql_type2",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "HashInput"
+				},
+				{
+					"name": "notexists"
+				},
+				{
+					"name": "setIsActive"
+				},
+				{
+					"name": "HashRef"
+				},
+				{
+					"name": "exists"
+				},
+				{
+					"name": "setInActive"
+				},
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id as integer,",
+				"          name as string,",
+				"          department as string,",
+				"          startdate as date 'yyyy-MM-dd'",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> csv",
+				"source(output(",
+				"          id as integer,",
+				"          name as string,",
+				"          department as string,",
+				"          isActive as integer,",
+				"          startdate as date,",
+				"          enddate as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sql",
+				"csv derive(inputhash = md5(name,department)) ~> HashInput",
+				"HashInput, HashRef exists(inputhash == sqlhash,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> notexists",
+				"notexists derive(isActive = 1,",
+				"          enddate = toDate(null())) ~> setIsActive",
+				"sql derive(sqlhash = md5(name,department)) ~> HashRef",
+				"HashRef, setIsActive exists(sql@id == csv@id",
+				"     && sql@name == csv@name,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> exists",
+				"exists derive(isActive = 0,",
+				"          enddate = toDate(currentUTC())) ~> setInActive",
+				"setInActive alterRow(updateIf(true())) ~> alterRow1",
+				"setIsActive sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id as integer,",
+				"          name as string,",
+				"          department as string,",
+				"          isActive as integer,",
+				"          startdate as date,",
+				"          enddate as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id,",
+				"          name,",
+				"          department,",
+				"          isActive,",
+				"          startdate,",
+				"          enddate",
+				"     )) ~> sink1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id as integer,",
+				"          name as string,",
+				"          department as string,",
+				"          isActive as integer,",
+				"          startdate as date,",
+				"          enddate as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['id','name','department'],",
+				"     skipKeyWrites:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id,",
+				"          name,",
+				"          department,",
+				"          isActive,",
+				"          startdate,",
+				"          enddate",
+				"     )) ~> sink2"
+			]
+		}
+	}
+}

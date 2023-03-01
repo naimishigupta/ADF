@@ -1,0 +1,44 @@
+{
+	"name": "ds_sinksql_type2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "name",
+				"type": "varchar"
+			},
+			{
+				"name": "department",
+				"type": "varchar"
+			},
+			{
+				"name": "isActive",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "startdate",
+				"type": "date"
+			},
+			{
+				"name": "enddate",
+				"type": "date"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "dim_employee2"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,88 @@
+{
+	"name": "df_null",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_source_null",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_sink_null",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedcolumn"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id as integer,",
+				"          SalePersonFName as string,",
+				"          SalePersonLName as string,",
+				"          ProductName as string,",
+				"          ItemsSold as integer,",
+				"          SoldPrice as integer,",
+				"          SoldDate as date 'MM/dd/yyyy',",
+				"          City as string,",
+				"          State as string,",
+				"          Country as string,",
+				"          Region as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source1 derive(SalePersonFName = iifNull(SalePersonFName, \" \", SalePersonFName),",
+				"          SalePersonLName = iifNull(SalePersonLName , \" \",SalePersonLName),",
+				"          ProductName = iifNull(ProductName , \" \",ProductName)) ~> derivedcolumn",
+				"derivedcolumn sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id as integer,",
+				"          SalePersonFName as string,",
+				"          SalePersonLName as string,",
+				"          ProductName as string,",
+				"          ItemsSold as integer,",
+				"          SoldPrice as integer,",
+				"          SoldDate as date,",
+				"          City as string,",
+				"          State as string,",
+				"          Country as string,",
+				"          Region as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id,",
+				"          SalePersonFName,",
+				"          SalePersonLName,",
+				"          ProductName,",
+				"          ItemsSold,",
+				"          SoldPrice,",
+				"          SoldDate,",
+				"          City,",
+				"          State,",
+				"          Country,",
+				"          Region",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

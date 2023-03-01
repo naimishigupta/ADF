@@ -1,0 +1,17 @@
+{
+	"name": "trigger1",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/cont1/blobs/",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/dbb52204-cfbb-4428-81cd-d8c860e91bbe/resourceGroups/rg-naimishi/providers/Microsoft.Storage/storageAccounts/adlsnaimishi",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}

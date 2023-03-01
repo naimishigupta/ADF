@@ -1,0 +1,38 @@
+{
+	"name": "ds_sql_error",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "OrderDate",
+				"type": "varchar"
+			},
+			{
+				"name": "Product",
+				"type": "varchar"
+			},
+			{
+				"name": "Quantity",
+				"type": "varchar"
+			},
+			{
+				"name": "CustomerName",
+				"type": "varchar"
+			},
+			{
+				"name": "Country",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "tbl_sales_bad"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
